@@ -1,4 +1,4 @@
-baseURL = 'https://example.org/'
+baseURL = 'https://fuloido.moe/'
 languageCode = 'zh-cn'
 title = "Fuloido's Blog"
 theme = 'archie'
