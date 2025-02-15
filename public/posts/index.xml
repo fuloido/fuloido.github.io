@@ -2,12 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Fuloido&#39;s Blog</title>
-    <link>https://example.org/posts/</link>
+    <link>http://localhost:1313/posts/</link>
     <description>Recent content in Posts on Fuloido&#39;s Blog</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <copyright>© Fuloido</copyright>
-    <lastBuildDate></lastBuildDate>
-    <atom:link href="https://example.org/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 15 Feb 2025 23:21:03 +0800</lastBuildDate>
+    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>你好，世界</title>
+      <link>http://localhost:1313/posts/hello-world/</link>
+      <pubDate>Sat, 15 Feb 2025 23:21:03 +0800</pubDate>
+      <guid>http://localhost:1313/posts/hello-world/</guid>
+      <description>&lt;p&gt;之前用 &lt;code&gt;hexo&lt;/code&gt; 构建的博客遗失了，目前先使用 &lt;code&gt;github pages&lt;/code&gt; + &lt;code&gt;hugo&lt;/code&gt; 构建博客。&lt;br&gt;&#xA;将来大概会用 &lt;code&gt;cloudflare pages&lt;/code&gt; + &lt;code&gt;org mode&lt;/code&gt; + 自己用 &lt;code&gt;elisp&lt;/code&gt; 写的博客引擎重构。&lt;/p&gt;&#xA;&lt;p&gt;耶复活了。&lt;/p&gt;</description>
+    </item>
   </channel>
 </rss>
