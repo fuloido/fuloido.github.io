@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>VM on Fuloido&#39;s Blog</title>
+    <link>http://localhost:1313/tags/vm/</link>
+    <description>Recent content in VM on Fuloido&#39;s Blog</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <copyright>© Fuloido</copyright>
+    <lastBuildDate>Sat, 15 Mar 2025 15:14:25 +0800</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/vm/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A64指令集編碼</title>
+      <link>http://localhost:1313/posts/a64-instruction-encoding/</link>
+      <pubDate>Sat, 15 Mar 2025 00:00:00 +0800</pubDate>
+      <guid>http://localhost:1313/posts/a64-instruction-encoding/</guid>
+      <description>&lt;p&gt;最近在做 Aarch64 架構的虛擬機，在此分享一下 A64 的指令編解碼。&lt;/p&gt;&#xA;&lt;p&gt;儘管 A64/A32 指令集是由若干 &lt;em&gt;FEAT_XXX&lt;/em&gt; 組成的，但 Arm 還是將其分為了若干類以便於拓展和編解碼。大概可以分為：&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;基本指令集&lt;/li&gt;&#xA;&lt;li&gt;浮點數和 SIMD 指令集&lt;/li&gt;&#xA;&lt;li&gt;向量指令集&lt;/li&gt;&#xA;&lt;li&gt;矩陣指令集&lt;/li&gt;&#xA;&lt;/ol&gt;&#xA;&lt;p&gt;在編解碼時由指令了 &lt;strong&gt;[25:28]&lt;/strong&gt; 位決定其分類，具體的分類見下表：&lt;/p&gt;&#xA;&lt;table&gt;&#xA;  &lt;thead&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;th&gt;Instr[28:25]&lt;/th&gt;&#xA;          &lt;th&gt;對應指令集分類&lt;/th&gt;&#xA;      &lt;/tr&gt;&#xA;  &lt;/thead&gt;&#xA;  &lt;tbody&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;0b0000 (Instr[31] = 0)&lt;/td&gt;&#xA;          &lt;td&gt;保留&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;0b0000 (Instr[31] = 1)&lt;/td&gt;&#xA;          &lt;td&gt;矩陣指令集 (SME)&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;0b0010&lt;/td&gt;&#xA;          &lt;td&gt;向量指令集 (SVE)&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;0b100x&lt;/td&gt;&#xA;          &lt;td&gt;數據通路 (Data Processing)：立即數類&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;0b101x&lt;/td&gt;&#xA;          &lt;td&gt;分支指令、異常生成 (Exception Generating)、系統指令 (System instruction)&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;0bx101&lt;/td&gt;&#xA;          &lt;td&gt;數據通路 (Data Processing)：寄存器類&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;0bx111&lt;/td&gt;&#xA;          &lt;td&gt;數據通路 (Data Processing)：浮點數以及 SIMD 指令集&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;0bx1x0&lt;/td&gt;&#xA;          &lt;td&gt;內存加載和儲存 (Loads and Store)&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;  &lt;/tbody&gt;&#xA;&lt;/table&gt;&#xA;&lt;p&gt;下面簡單分享一下基本指令集和浮點、SIMD 指令集的編解碼規則，後續有機會分享一下 SVE 以及 SME 指令集的編解碼。&lt;/p&gt;&#xA;&lt;h2 id=&#34;數據通路-寄存器類&#34;&gt;數據通路 - 寄存器類&lt;/h2&gt;&#xA;&lt;p&gt;這一類指令類型主要涵蓋了：&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

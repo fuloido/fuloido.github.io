@@ -1,0 +1,159 @@
+#+hugo_base_dir: ../
+#+hugo_auto_set_lastmod: t
+
+* 耶复活了 :随笔:
+:PROPERTIES:
+:EXPORT_FILE_NAME: hello-world-again
+:EXPORT_HUGO_SECTION: posts
+:EXPORT_DATE: 2025-02-15T23:21:03+08:0
+:END:
+
+之前用 =hexo= 构建的博客遗失了，目前先使用 =github pages= + =hugo= 构建博客。
+将来大概会用 =cloudflare pages= + =org mode= + 自己用 =elisp= 写的博客引擎重构。
+
++耶复活了。+
+
+* A64指令集編碼 :VM:ASM:A64:ARM:
+:PROPERTIES:
+:EXPORT_FILE_NAME: a64-instruction-encoding
+:EXPORT_HUGO_SECTION: posts
+:EXPORT_DATE: <2025-03-15 Sat>
+:END:
+
+最近在做 Aarch64 架構的虛擬機，在此分享一下 A64 的指令編解碼。
+
+儘管 A64/A32 指令集是由若干 /FEAT_XXX/ 組成的，但 Arm 還是將其分為了若干類以便於拓展和編解碼。大概可以分為：
+1. 基本指令集
+2. 浮點數和 SIMD 指令集
+3. 向量指令集
+4. 矩陣指令集
+
+在編解碼時由指令了 *[25:28]* 位決定其分類，具體的分類見下表：
+
+| Instr[28:25]           | 對應指令集分類                                                           |
+|------------------------+--------------------------------------------------------------------------|
+| 0b0000 (Instr[31] = 0) | 保留                                                                     |
+| 0b0000 (Instr[31] = 1) | 矩陣指令集 (SME)                                                         |
+| 0b0010                 | 向量指令集 (SVE)                                                         |
+| 0b100x                 | 數據通路 (Data Processing)：立即數類                                     |
+| 0b101x                 | 分支指令、異常生成 (Exception Generating)、系統指令 (System instruction) |
+| 0bx101                 | 數據通路 (Data Processing)：寄存器類                                     |
+| 0bx111                 | 數據通路 (Data Processing)：浮點數以及 SIMD 指令集                       |
+| 0bx1x0                 | 內存加載和儲存 (Loads and Store)                                         |
+
+下面簡單分享一下基本指令集和浮點、SIMD 指令集的編解碼規則，後續有機會分享一下 SVE 以及 SME 指令集的編解碼。
+** 數據通路 - 寄存器類
+
+這一類指令類型主要涵蓋了：
+1. *邏輯運算*: 比如 /AND/, /ORR/ 等。
+2. *算數運算*: 比如 /ADD/, /ADC/, /SBC/ 等。
+3. *條件運算*: 比如 /CSEL/, /CCMP/ 等。
+4. *其他的特殊操作*: 通常由處理器實現的 FEAT 相關，編解碼時由 *操作數* 數量區分。
+
+具體的編碼表如下：
+
+| Instr[28] | Instr[24:21]                       | Instr[15:10] | 相應指令分類                                                     |
+|-----------+------------------------------------+--------------+------------------------------------------------------------------|
+|         0 | 0b0xxx                             |              | 邏輯運算 (shifted register 類)                                   |
+|         0 | 0b1xx0                             |              | 加減運算 (shifted register 類)                                   |
+|         0 | 0b1xx1                             |              | 加減運算 (extended register 類)                                  |
+|         1 | 0b0000                             | 0b000000     | 加減運算 (with carry 類)                                         |
+|         1 | 0b0000                             | 0b001xxx     | 加減運算 (checked pointer 類，用於檢查指針運算是否超出範圍)      |
+|         1 | 0b0000                             | 0bx00001     | Rotate right into flags 類 (數值右旋並改變處理器的 flags)        |
+|         1 | 0b0000                             | 0bxx0010     | Evaluate into flags 類 (條件測試並改變處理器的conditional flags) |
+|         1 | 0b0010                             | 0bxxxx0x     | 條件比較 (寄存器類)                                              |
+|         1 | 0b0010                             | 0bxxxx1x     | 條件比較 (立即數類)                                              |
+|         1 | 0b0100                             |              | 條件選擇 (例如 CSEL，允許根據條件標誌選擇不同的寄存器值)         |
+|         1 | 0b0110, Instr[28]=0, Instr[30] = 1 |              | 單源操作數數據通路                                               |
+|         1 | 0b0110, Instr[28]=0, Instr[30] = 0 |              | 雙源操作數數據通路                                               |
+|         1 | 0b1xxx                             |              | 三源操作數數據通路                                               |
+
+** 數據通路 - 立即數類
+| Instr[30:29] | Instr[25:22] | 指令分類                                   |
+|--------------+--------------+--------------------------------------------|
+|              | 0b00xx       | PC 相對尋址 (PC-rel. addressing)           |
+|              | 0b010x       | Add/substract                              |
+|              | 0b0110       | Add/substract (with tags)，用於 *MTE* 拓展 |
+|              | 0b0111       | Min/max                                    |
+|              | 0b100x       | Logical                                    |
+|              | 0b101x       | Move wide                                  |
+|              | 0b110x       | Bitfield                                   |
+| Not 0b11     | 0b111x       | Extract                                    |
+| 0b11         | 0b111x       | 單源操作數數據通路                         |
+** 內存加載和儲存
+A64 有著極為獨特訪存模式以及豐富的訪存拓展，因此 Load/store 指令的數量也極為龐大。即使是基本 Load/store 指令，也有著不同的偏移量訪存模式。同時不同的特權級 (EL) 也有特定的訪存指令，而且拓展指令集也會帶來各自的訪存指令 (比如 SIMD)。因此會有一個特別上的 tag 段來進行編解碼。這裡給出相關的 Load/store 種類，而不給出具體的編解碼表。
+
+1. 偏移量種類: 可以分為 /unsigned immediate/, /unscaled immediate/, /register offset/, /pre-indexed/, /post-indexed/ 等種類。
+2. 成對加載/存儲: 比如 =LDP/STP= ，適用於 64-bit、128-bit。
+3. 互斥訪存: 適用於多處理器環境中的 *同步與互斥* ，比如獨佔訪問 (=LDXR/STXR= exclusive register)、Compare and Swap (=CAS=)、Release-Compare-Write (=RCW CAS=)。
+4. 內存順序保證 (/Ordered/): 這類指令確保訪存順序，通常用於內存屏障和同步機制。比如 (=STLR= store-release, =LDAPR= load-acquire)
+5. Memory Tagging: Arm 引入了 /Memory Tagging Extension (MTE)/ 機制用於內存安全檢查。比如 (=LDG/STG= load/store tags)
+6. 原子操作: 比如原子加法 (=LDADD/STADD=)，原子復位 (=LDCLR/STCLR=) 等。
+
+一些 Armv8 的 FEAT 也會引入特殊用途的訪存指令，比如 /Pointer Authentication Code/, /General Capability System/ 等。
+** 分支指令、異常生成和系統指令
+
+/Branches, Exception Generating, and System Instructions/ 指令集大概可以分為一下幾類並以此編解碼：
+1. *分支指令*: 包括條件、無條件分支、基於比較的分支等，同時也可以根據源操作數種類進行劃分。
+2. *異常生成指令*: 這些指令用於產生異常 (/Exception/)，以實現系統調用、調試或錯誤處理。包括： =SVC=, =HVC=, =BRK= 等等。
+3. *System Instructions (系統管理指令指令)* : 這類指令用於 _訪問處理器狀態 (/PSTATE/)_ 、 _執行特殊操作_ 、 _同步內存_ 等。
+4. *Hints & Barriers*: 在 A64 系統指一些 *影響* CPU 的行為，但不會改變程式的 *邏輯結果* 。比如 /NOP/, /WFE/ 等 Hints 指令以及 /DSB/, /DMB/ 等內存屏障指令
+
+由於這類指令數量較多且極易和常常拓展，同時理論上不需要多少源操作數，A64 足足用了 Instr[31:29] 和 Instr[25:12] 這麼長的譯碼空間。
+
+** 浮點數、SIMD 指令
+總得來說，A64 的 /Scalar Floating-Pointe and Advanced SIMD/ 可以分為三大類指令:
+1. Cryptographic
+2. Advenced SIMD
+3. Floating-Point
+
+Cryptographic 是大概分為 AES 和 SHA，並根據算法複雜性和步驟分為不同寄存器數量的指令 (如 two/three/four-register) 。
+
+浮點數指令則分為 *Convention* 和浮點數的 *Data processing* ， /Advanced SIMD/ 則涉及一些更為復雜的數據通路及指令，比如 /across lanes/ (對整個向量求和或取最大值等)、 /table lookup/ 、 /permute/ 等
+
+* 如何制作 X-Face 风格头像 :Emacs:nerd:
+:PROPERTIES:
+:EXPORT_FILE_NAME: how-to-make-and-use-xface
+:EXPORT_HUGO_SECTION: posts
+:EXPORT_DATE: 2025-02-17T01:23:06+08:00
+:END:
+
+
+一开始是在 /emacs-china/ 上水论坛时，经常能看到像素极低、纯黑白的头像、却又很带感的头像。后来[[https:emacs-china.org/t/topic/3118][发现]]原来叫 =X-face= ，大概是邮件／新闻组时代流行的头像。
+
+#+begin_quote
+翻到 [[https://blog.csdn.net/lujun9972/article/details/46002803][DarkSun转的一篇老文章]]，提到了 [[https://en.wikipedia.org/wiki/X-Face][X-Face]] 这个邮件／新闻组时代很流行的东西。就和现在的 Gravatar 差不多。甚至以前的 IRC 也能显示 X-face 头像。
+#+end_quote
+
+=X-face= 是邮件 header 部分嵌入的一段代码，在读入邮件时转换为 /48x48/ 的 bitmap。可以通过 [[https://www.dairiki.org/xface/xface.php][Online X-Face Converter]] 直接转换。然而，如果你的图片是彩色的、分辨率过高，直接转换的效果很不好。
+
+这里参考了 [[https://emacs-china.org/t/x-face/28144][emacs-china 上的一个教程]]，分享一下作为 =gimp= 苦手的制作过程。
+
+1. 图像->模式->灰度：将彩色的图片去色便于后续通过 *阈值* 分割像素，当然最好用本来就是黑白的图片。
+2. 颜色->阈值：这一步将黑白像素分离，只要有线条即可，后续通过滤镜加粗线条。这里建议可以分图层处理，比如说眼睛部分和头发部分，往往当眼睛部分已经全为黑色像素时头发的线条还未区分。
+3. 图像->模式->索引：将图片变为 /black and white pattle(1bit)/
+4. 滤镜->常规->腐蚀：将线条加粗，一般需要多次使用这个滤镜。
+5. 图像->缩放：缩放为 48x48 ，插值方法一般不限。
+
+据 [[https://emacs-china.org/t/x-face/28144/2][LdBeth]]，x-face 没有确切的解码标准，甚至因为作者技术问题和导致仿造实现时出了偏差，有些实现是相互不兼容的，现在一般用 compface 这个具体实现。这里直接使用 /compface/ 提供的 =xbm2xface= 脚本即可。或者直接使用 [[https://www.dairiki.org/xface/xface.php][Online X-Face Converter]] encode一下。
+
+** 为 WanderLust 设置 X-Face 邮件头
+
+/WanderLust/ 自动读取 =~/.xface= ，如果需要显示 X-Face 则需要额外的包，参考了 =doom emacs= ，添加：
+
+#+begin_src elisp
+  ;; Use x-face only when compface installed
+  (when (modulep! +xface)
+    (autoload 'x-face-decode-message-header "x-face-e21")
+    (setq wl-highlight-x-face-function 'x-face-decode-message-header))
+#+end_src
+
+顺便一提， =Homebrew= 目前不提供 =compface= 这个包，这里参考 [[https://www.linuxfromscratch.org/blfs/view/git/general/compface.html][Linux® From Scratch]] 手动构建了这个程序。你可能需要：
+
+#+begin_src shell
+sed -e '/compface.h/a #include <unistd.h>' \
+    -i cmain.c                             \
+    -i uncmain.c
+#+end_src
+
+才能构建成功。

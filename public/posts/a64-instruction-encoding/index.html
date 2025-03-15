@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html><head lang="en"><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>A64指令集編碼 - Fuloido&#39;s Blog</title><link rel="icon" type="image/png" href=/favicon.png /><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="最近在做 Aarch64 架構的虛擬機，在此分享一下 A64 的指令編解碼。
+儘管 A64/A32 指令集是由若干 FEAT_XXX 組成的，但 Arm 還是將其分為了若干類以便於拓展和編解碼。大概可以分為：
+
+基本指令集
+浮點數和 SIMD 指令集
+向量指令集
+矩陣指令集
+
+在編解碼時由指令了 [25:28] 位決定其分類，具體的分類見下表：
+
+  
+      
+          Instr[28:25]
+          對應指令集分類
+      
+  
+  
+      
+          0b0000 (Instr[31] = 0)
+          保留
+      
+      
+          0b0000 (Instr[31] = 1)
+          矩陣指令集 (SME)
+      
+      
+          0b0010
+          向量指令集 (SVE)
+      
+      
+          0b100x
+          數據通路 (Data Processing)：立即數類
+      
+      
+          0b101x
+          分支指令、異常生成 (Exception Generating)、系統指令 (System instruction)
+      
+      
+          0bx101
+          數據通路 (Data Processing)：寄存器類
+      
+      
+          0bx111
+          數據通路 (Data Processing)：浮點數以及 SIMD 指令集
+      
+      
+          0bx1x0
+          內存加載和儲存 (Loads and Store)
+      
+  
+
+下面簡單分享一下基本指令集和浮點、SIMD 指令集的編解碼規則，後續有機會分享一下 SVE 以及 SME 指令集的編解碼。
+數據通路 - 寄存器類
+這一類指令類型主要涵蓋了：" />
+	<meta property="og:image" content=""/>
+	<meta property="og:url" content="http://localhost:1313/posts/a64-instruction-encoding/">
+  <meta property="og:site_name" content="Fuloido&#39;s Blog">
+  <meta property="og:title" content="A64指令集編碼">
+  <meta property="og:description" content="最近在做 Aarch64 架構的虛擬機，在此分享一下 A64 的指令編解碼。
+儘管 A64/A32 指令集是由若干 FEAT_XXX 組成的，但 Arm 還是將其分為了若干類以便於拓展和編解碼。大概可以分為：
+基本指令集 浮點數和 SIMD 指令集 向量指令集 矩陣指令集 在編解碼時由指令了 [25:28] 位決定其分類，具體的分類見下表：
+Instr[28:25] 對應指令集分類 0b0000 (Instr[31] = 0) 保留 0b0000 (Instr[31] = 1) 矩陣指令集 (SME) 0b0010 向量指令集 (SVE) 0b100x 數據通路 (Data Processing)：立即數類 0b101x 分支指令、異常生成 (Exception Generating)、系統指令 (System instruction) 0bx101 數據通路 (Data Processing)：寄存器類 0bx111 數據通路 (Data Processing)：浮點數以及 SIMD 指令集 0bx1x0 內存加載和儲存 (Loads and Store) 下面簡單分享一下基本指令集和浮點、SIMD 指令集的編解碼規則，後續有機會分享一下 SVE 以及 SME 指令集的編解碼。
+數據通路 - 寄存器類 這一類指令類型主要涵蓋了：">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-03-15T00:00:00+08:00">
+    <meta property="article:modified_time" content="2025-03-15T15:14:25+08:00">
+    <meta property="article:tag" content="VM">
+    <meta property="article:tag" content="ASM">
+    <meta property="article:tag" content="A64">
+    <meta property="article:tag" content="ARM">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="A64指令集編碼">
+  <meta name="twitter:description" content="最近在做 Aarch64 架構的虛擬機，在此分享一下 A64 的指令編解碼。
+儘管 A64/A32 指令集是由若干 FEAT_XXX 組成的，但 Arm 還是將其分為了若干類以便於拓展和編解碼。大概可以分為：
+基本指令集 浮點數和 SIMD 指令集 向量指令集 矩陣指令集 在編解碼時由指令了 [25:28] 位決定其分類，具體的分類見下表：
+Instr[28:25] 對應指令集分類 0b0000 (Instr[31] = 0) 保留 0b0000 (Instr[31] = 1) 矩陣指令集 (SME) 0b0010 向量指令集 (SVE) 0b100x 數據通路 (Data Processing)：立即數類 0b101x 分支指令、異常生成 (Exception Generating)、系統指令 (System instruction) 0bx101 數據通路 (Data Processing)：寄存器類 0bx111 數據通路 (Data Processing)：浮點數以及 SIMD 指令集 0bx1x0 內存加載和儲存 (Loads and Store) 下面簡單分享一下基本指令集和浮點、SIMD 指令集的編解碼規則，後續有機會分享一下 SVE 以及 SME 指令集的編解碼。
+數據通路 - 寄存器類 這一類指令類型主要涵蓋了：">
+
+        <link href="http://localhost:1313/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
+	
+
+	
+	<link rel="stylesheet" type="text/css" media="screen" href="http://localhost:1313/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css" />
+		<link id="darkModeStyle" rel="stylesheet" type="text/css" href="http://localhost:1313/css/dark.50b57e12d401420df23965fed157368aba37b76df0ecefd0b1ecd4da664f01a0.css"  disabled /><script type="text/javascript"
+		src="http://localhost:1313/js/MathJax.js"></script>
+		
+		<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			tex2jax: {
+				inlineMath: [['$','$'], ['\\(','\\)']],
+				displayMath: [['$$','$$'], ['\[','\]']],
+				processEscapes: true,
+				processEnvironments: true,
+				skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+				TeX: { equationNumbers: { autoNumber: "AMS" },
+						 extensions: ["AMSmath.js", "AMSsymbols.js"] }
+			}
+		});
+		</script><link rel="stylesheet" href="http://localhost:1313/katex/katex.min.css ">
+		<script defer src="http://localhost:1313/katex/katex.min.js"></script>
+		<script defer src="http://localhost:1313/katex/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+		
+		<script>
+			document.addEventListener("DOMContentLoaded", function() {
+					renderMathInElement(document.body, {
+							delimiters: [
+									{left: "$$", right: "$$", display: true},
+									{left: "$", right: "$", display: false}
+							]
+					});
+			});
+		</script>
+</head>
+<body>
+        <div class="content"><header>
+	<div class="main">
+		<a href="http://localhost:1313/">Fuloido&#39;s Blog</a>
+	</div>
+	<nav>
+		
+		<a href="/">Home</a>
+		
+		<a href="/posts">All posts</a>
+		
+		<a href="/about">About</a>
+		
+		<a href="/tags">Tags</a>
+		
+		| <span id="dark-mode-toggle" onclick="toggleTheme()"><svg class="feather">
+   <use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun" />
+</svg></span>
+		<script src="http://localhost:1313/js/themetoggle.js"></script>
+		
+	</nav>
+</header>
+
+<main>
+  <article>
+    <div class="post-container">
+      
+      <div class="post-content">
+        <div class="title">
+          <h1 class="title">A64指令集編碼</h1>
+          <div class="meta">Posted on Mar 15, 2025</div>
+        </div>
+        
+        <section class="body">
+          <p>最近在做 Aarch64 架構的虛擬機，在此分享一下 A64 的指令編解碼。</p>
+<p>儘管 A64/A32 指令集是由若干 <em>FEAT_XXX</em> 組成的，但 Arm 還是將其分為了若干類以便於拓展和編解碼。大概可以分為：</p>
+<ol>
+<li>基本指令集</li>
+<li>浮點數和 SIMD 指令集</li>
+<li>向量指令集</li>
+<li>矩陣指令集</li>
+</ol>
+<p>在編解碼時由指令了 <strong>[25:28]</strong> 位決定其分類，具體的分類見下表：</p>
+<table>
+  <thead>
+      <tr>
+          <th>Instr[28:25]</th>
+          <th>對應指令集分類</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>0b0000 (Instr[31] = 0)</td>
+          <td>保留</td>
+      </tr>
+      <tr>
+          <td>0b0000 (Instr[31] = 1)</td>
+          <td>矩陣指令集 (SME)</td>
+      </tr>
+      <tr>
+          <td>0b0010</td>
+          <td>向量指令集 (SVE)</td>
+      </tr>
+      <tr>
+          <td>0b100x</td>
+          <td>數據通路 (Data Processing)：立即數類</td>
+      </tr>
+      <tr>
+          <td>0b101x</td>
+          <td>分支指令、異常生成 (Exception Generating)、系統指令 (System instruction)</td>
+      </tr>
+      <tr>
+          <td>0bx101</td>
+          <td>數據通路 (Data Processing)：寄存器類</td>
+      </tr>
+      <tr>
+          <td>0bx111</td>
+          <td>數據通路 (Data Processing)：浮點數以及 SIMD 指令集</td>
+      </tr>
+      <tr>
+          <td>0bx1x0</td>
+          <td>內存加載和儲存 (Loads and Store)</td>
+      </tr>
+  </tbody>
+</table>
+<p>下面簡單分享一下基本指令集和浮點、SIMD 指令集的編解碼規則，後續有機會分享一下 SVE 以及 SME 指令集的編解碼。</p>
+<h2 id="數據通路-寄存器類">數據通路 - 寄存器類</h2>
+<p>這一類指令類型主要涵蓋了：</p>
+<ol>
+<li><strong>邏輯運算</strong>: 比如 <em>AND</em>, <em>ORR</em> 等。</li>
+<li><strong>算數運算</strong>: 比如 <em>ADD</em>, <em>ADC</em>, <em>SBC</em> 等。</li>
+<li><strong>條件運算</strong>: 比如 <em>CSEL</em>, <em>CCMP</em> 等。</li>
+<li><strong>其他的特殊操作</strong>: 通常由處理器實現的 FEAT 相關，編解碼時由 <strong>操作數</strong> 數量區分。</li>
+</ol>
+<p>具體的編碼表如下：</p>
+<table>
+  <thead>
+      <tr>
+          <th>Instr[28]</th>
+          <th>Instr[24:21]</th>
+          <th>Instr[15:10]</th>
+          <th>相應指令分類</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>0</td>
+          <td>0b0xxx</td>
+          <td></td>
+          <td>邏輯運算 (shifted register 類)</td>
+      </tr>
+      <tr>
+          <td>0</td>
+          <td>0b1xx0</td>
+          <td></td>
+          <td>加減運算 (shifted register 類)</td>
+      </tr>
+      <tr>
+          <td>0</td>
+          <td>0b1xx1</td>
+          <td></td>
+          <td>加減運算 (extended register 類)</td>
+      </tr>
+      <tr>
+          <td>1</td>
+          <td>0b0000</td>
+          <td>0b000000</td>
+          <td>加減運算 (with carry 類)</td>
+      </tr>
+      <tr>
+          <td>1</td>
+          <td>0b0000</td>
+          <td>0b001xxx</td>
+          <td>加減運算 (checked pointer 類，用於檢查指針運算是否超出範圍)</td>
+      </tr>
+      <tr>
+          <td>1</td>
+          <td>0b0000</td>
+          <td>0bx00001</td>
+          <td>Rotate right into flags 類 (數值右旋並改變處理器的 flags)</td>
+      </tr>
+      <tr>
+          <td>1</td>
+          <td>0b0000</td>
+          <td>0bxx0010</td>
+          <td>Evaluate into flags 類 (條件測試並改變處理器的conditional flags)</td>
+      </tr>
+      <tr>
+          <td>1</td>
+          <td>0b0010</td>
+          <td>0bxxxx0x</td>
+          <td>條件比較 (寄存器類)</td>
+      </tr>
+      <tr>
+          <td>1</td>
+          <td>0b0010</td>
+          <td>0bxxxx1x</td>
+          <td>條件比較 (立即數類)</td>
+      </tr>
+      <tr>
+          <td>1</td>
+          <td>0b0100</td>
+          <td></td>
+          <td>條件選擇 (例如 CSEL，允許根據條件標誌選擇不同的寄存器值)</td>
+      </tr>
+      <tr>
+          <td>1</td>
+          <td>0b0110, Instr[28]=0, Instr[30] = 1</td>
+          <td></td>
+          <td>單源操作數數據通路</td>
+      </tr>
+      <tr>
+          <td>1</td>
+          <td>0b0110, Instr[28]=0, Instr[30] = 0</td>
+          <td></td>
+          <td>雙源操作數數據通路</td>
+      </tr>
+      <tr>
+          <td>1</td>
+          <td>0b1xxx</td>
+          <td></td>
+          <td>三源操作數數據通路</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="數據通路-立即數類">數據通路 - 立即數類</h2>
+<table>
+  <thead>
+      <tr>
+          <th>Instr[30:29]</th>
+          <th>Instr[25:22]</th>
+          <th>指令分類</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td></td>
+          <td>0b00xx</td>
+          <td>PC 相對尋址 (PC-rel. addressing)</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>0b010x</td>
+          <td>Add/substract</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>0b0110</td>
+          <td>Add/substract (with tags)，用於 <strong>MTE</strong> 拓展</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>0b0111</td>
+          <td>Min/max</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>0b100x</td>
+          <td>Logical</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>0b101x</td>
+          <td>Move wide</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>0b110x</td>
+          <td>Bitfield</td>
+      </tr>
+      <tr>
+          <td>Not 0b11</td>
+          <td>0b111x</td>
+          <td>Extract</td>
+      </tr>
+      <tr>
+          <td>0b11</td>
+          <td>0b111x</td>
+          <td>單源操作數數據通路</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="內存加載和儲存">內存加載和儲存</h2>
+<p>A64 有著極為獨特訪存模式以及豐富的訪存拓展，因此 Load/store 指令的數量也極為龐大。即使是基本 Load/store 指令，也有著不同的偏移量訪存模式。同時不同的特權級 (EL) 也有特定的訪存指令，而且拓展指令集也會帶來各自的訪存指令 (比如 SIMD)。因此會有一個特別上的 tag 段來進行編解碼。這裡給出相關的 Load/store 種類，而不給出具體的編解碼表。</p>
+<ol>
+<li>偏移量種類: 可以分為 <em>unsigned immediate</em>, <em>unscaled immediate</em>, <em>register offset</em>, <em>pre-indexed</em>, <em>post-indexed</em> 等種類。</li>
+<li>成對加載/存儲: 比如 <code>LDP/STP</code> ，適用於 64-bit、128-bit。</li>
+<li>互斥訪存: 適用於多處理器環境中的 <strong>同步與互斥</strong> ，比如獨佔訪問 (<code>LDXR/STXR</code> exclusive register)、Compare and Swap (<code>CAS</code>)、Release-Compare-Write (<code>RCW CAS</code>)。</li>
+<li>內存順序保證 (<em>Ordered</em>): 這類指令確保訪存順序，通常用於內存屏障和同步機制。比如 (<code>STLR</code> store-release, <code>LDAPR</code> load-acquire)</li>
+<li>Memory Tagging: Arm 引入了 <em>Memory Tagging Extension (MTE)</em> 機制用於內存安全檢查。比如 (<code>LDG/STG</code> load/store tags)</li>
+<li>原子操作: 比如原子加法 (<code>LDADD/STADD</code>)，原子復位 (<code>LDCLR/STCLR</code>) 等。</li>
+</ol>
+<p>一些 Armv8 的 FEAT 也會引入特殊用途的訪存指令，比如 <em>Pointer Authentication Code</em>, <em>General Capability System</em> 等。</p>
+<h2 id="分支指令-異常生成和系統指令">分支指令、異常生成和系統指令</h2>
+<p><em>Branches, Exception Generating, and System Instructions</em> 指令集大概可以分為一下幾類並以此編解碼：</p>
+<ol>
+<li><strong>分支指令</strong>: 包括條件、無條件分支、基於比較的分支等，同時也可以根據源操作數種類進行劃分。</li>
+<li><strong>異常生成指令</strong>: 這些指令用於產生異常 (<em>Exception</em>)，以實現系統調用、調試或錯誤處理。包括： <code>SVC</code>, <code>HVC</code>, <code>BRK</code> 等等。</li>
+<li><strong>System Instructions (系統管理指令指令)</strong> : 這類指令用於 <span class="underline">訪問處理器狀態 (<em>PSTATE</em>)</span> 、 <span class="underline">執行特殊操作</span> 、 <span class="underline">同步內存</span> 等。</li>
+<li><strong>Hints &amp; Barriers</strong>: 在 A64 系統指一些 <strong>影響</strong> CPU 的行為，但不會改變程式的 <strong>邏輯結果</strong> 。比如 <em>NOP</em>, <em>WFE</em> 等 Hints 指令以及 <em>DSB</em>, <em>DMB</em> 等內存屏障指令</li>
+</ol>
+<p>由於這類指令數量較多且極易和常常拓展，同時理論上不需要多少源操作數，A64 足足用了 Instr[31:29] 和 Instr[25:12] 這麼長的譯碼空間。</p>
+<h2 id="浮點數-simd-指令">浮點數、SIMD 指令</h2>
+<p>總得來說，A64 的 <em>Scalar Floating-Pointe and Advanced SIMD</em> 可以分為三大類指令:</p>
+<ol>
+<li>Cryptographic</li>
+<li>Advenced SIMD</li>
+<li>Floating-Point</li>
+</ol>
+<p>Cryptographic 是大概分為 AES 和 SHA，並根據算法複雜性和步驟分為不同寄存器數量的指令 (如 two/three/four-register) 。</p>
+<p>浮點數指令則分為 <strong>Convention</strong> 和浮點數的 <strong>Data processing</strong> ， <em>Advanced SIMD</em> 則涉及一些更為復雜的數據通路及指令，比如 <em>across lanes</em> (對整個向量求和或取最大值等)、 <em>table lookup</em> 、 <em>permute</em> 等</p>
+
+        </section>
+        <div class="post-tags">
+          
+          
+          <nav class="nav tags">
+            <ul class="tags">
+              
+              <li><a href="/tags/vm">VM</a></li>
+              
+              <li><a href="/tags/asm">ASM</a></li>
+              
+              <li><a href="/tags/a64">A64</a></li>
+              
+              <li><a href="/tags/arm">ARM</a></li>
+              
+            </ul>
+          </nav>
+          
+          
+        </div>
+      </div>
+
+      
+      
+    </div>
+
+    </article>
+</main>
+<footer>
+  <div style="display:flex"><a class="soc" href="https://github.com/fuloido" rel="me" title="GitHub"><svg class="feather">
+   <use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github" />
+</svg></a><a class="border"></a></div>
+  <div class="footer-info">
+    2025  © Fuloido |  <a
+      href="https://github.com/athul/archie">Archie Theme</a> | Built with <a href="https://gohugo.io">Hugo</a>
+  </div>
+</footer>
+
+</div>
+    </body>
+</html>
