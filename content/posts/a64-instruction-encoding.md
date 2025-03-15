@@ -2,8 +2,8 @@
 title = "A64指令集編碼"
 author = ["fuloido"]
 date = 2025-03-15T00:00:00+08:00
-lastmod = 2025-03-15T15:14:25+08:00
-tags = ["VM", "ASM", "A64", "ARM"]
+lastmod = 2025-03-15T17:47:31+08:00
+tags = ["VM", "ASM", "ARM"]
 draft = false
 +++
 

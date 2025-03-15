@@ -4,6 +4,8 @@ title = "Fuloido's Blog"
 theme = 'archie'
 copyright = "© Fuloido"
 
+cleanDestinationDir = true
+
 # TODO: Comment System
 # disqusShortname = "yourDisqusShortname"
 

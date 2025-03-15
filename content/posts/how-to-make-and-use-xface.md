@@ -2,7 +2,7 @@
 title = "如何制作 X-Face 风格头像"
 author = ["fuloido"]
 date = 2025-02-17T01:23:06+08:00
-lastmod = 2025-03-15T15:14:25+08:00
+lastmod = 2025-03-15T17:47:31+08:00
 tags = ["Emacs", "nerd"]
 draft = false
 +++
