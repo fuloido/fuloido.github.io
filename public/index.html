@@ -82,33 +82,33 @@
 				
 				
 				<section class="list-item">
-					<h1 class="title"><a href="/posts/seven-habits-of-effective-text-editing/">[譯] 高效文本编辑的七个习惯</a></h1>
+					<h1 class="title"><a href="/posts/seven-habits-of-effective-text-editing/">[譯] 高效文本編輯的七個習慣</a></h1>
 					<time>Mar 15, 2025</time>
 					<br><div class="description">
 	
-	<p>如果你花费大量时间输入纯文本、编写程序或HTML，那么通过使用一款优秀的编辑器并高效地使用它，你可以节省大量时间。本文将提供一些指导和建议，帮助你更快地完成工作并减少错误。</p>
-<p>这里将使用开源文本编辑器Vim（Vi IMproved）来展示高效编辑的理念，但这些理念同样适用于其他编辑器。 <span class="underline">选择一款合适的编辑器</span> 实际上是实现高效编辑的第一步。关于哪款编辑器最适合你的讨论会占用太多篇幅，因此这里不做展开。如果你不知道该使用哪款编辑器，或者对当前使用的编辑器不满意，不妨试试Vim <em>（譯者：不妨試試 <strong>Emacs</strong> ）</em> ；你不会失望的。</p>
+	<p>如果你花費大量時間輸入純文本、編寫程序或HTML，那麽通過使用一款優秀的編輯器並高效地使用它，你可以節省大量時間。本文將提供一些指導和建議，幫助你更快地完成工作並減少錯誤。</p>
+<p>這里將使用開源文本編輯器Vim（Vi IMproved）來展示高效編輯的理念，但這些理念同樣適用於其他編輯器。 <span class="underline">選擇一款合適的編輯器</span> 實際上是實現高效編輯的第一步。關於哪款編輯器最適合你的討論會占用太多篇幅，因此這里不做展開。如果你不知道該使用哪款編輯器，或者對當前使用的編輯器不滿意，不妨試試Vim <em>（譯者：不妨試試 <strong>Emacs</strong> ）</em> ；你不會失望的。</p>
 <blockquote>
 <p>原文標題：Seven habits of effective text editing</p>
 <p>原文鏈接：<a href="https://www.moolenaar.net/habits.html">https://www.moolenaar.net/habits.html</a></p>
 <p>原文作者：<a href="https://www.moolenaar.net">Bram Moolenaar</a></p>
 </blockquote>
 <h2 id="part-1-單文件編輯">Part 1: 單文件編輯</h2>
-<h3 id="1-dot-快速移动">1. 快速移动</h3>
-<p>在編輯文本時，大多数时间都花在 <strong>阅读</strong> 、 <strong>检查错误</strong> 以及 <strong>寻找需要编辑的位置</strong> 上，而不是插入或修改新文本。由于在文本中导航是非常频繁的操作，因此你应该学会如何 <span class="underline">快速移动</span> 。</p>
-<p>很多时候，你会想要搜索一些你知道存在的文本，或者查看某个单词或短语出现的所有行。你可以简单地使用搜索命令 <code>/pattern</code> 来查找文本，但还有更聪明的方法：</p>
+<h3 id="1-dot-快速移動">1. 快速移動</h3>
+<p>在編輯文本時，大多數時間都花在 <strong>閱讀</strong> 、 <strong>檢查錯誤</strong> 以及 <strong>尋找需要編輯的位置</strong> 上，而不是插入或修改新文本。由於在文本中導航是非常頻繁的操作，因此你應該學會如何 <span class="underline">快速移動</span> 。</p>
+<p>很多時候，你會想要搜索一些你知道存在的文本，或者查看某個單詞或短語出現的所有行。你可以簡單地使用搜索命令 <code>/pattern</code> 來查找文本，但還有更聰明的方法：</p>
 <ul>
-<li>如果你看到一个特定的单词，并想搜索该单词的其他出现位置，可以使用 <code>*</code> 命令。它会从光标下提取单词并搜索下一个匹配项。</li>
-<li>如果你设置了 <code>incsearch</code> 选项，Vim 会在你输入模式时显示第一个匹配项。这可以快速发现模式中的 <span class="underline">拼写错误</span> 。</li>
-<li>如果你设置了 <code>hlsearch</code> 选项，Vim 会用黄色背景高亮显示所有匹配项。这可以快速预览搜索命令会带你到哪里。在程序代码中，它可以显示变量的 <span class="underline">使用位置</span> 。你甚至不需要移动光标就能看到匹配项。</li>
+<li>如果你看到一個特定的單詞，並想搜索該單詞的其他出現位置，可以使用 <code>*</code> 命令。它會從光標下提取單詞並搜索下一個匹配項。</li>
+<li>如果你設置了 <code>incsearch</code> 選項，Vim 會在你輸入模式時顯示第一個匹配項。這可以快速發現模式中的 <span class="underline">拼寫錯誤</span> 。</li>
+<li>如果你設置了 <code>hlsearch</code> 選項，Vim 會用黃色背景高亮顯示所有匹配項。這可以快速預覽搜索命令會帶你到哪里。在程序代碼中，它可以顯示變量的 <span class="underline">使用位置</span> 。你甚至不需要移動光標就能看到匹配項。</li>
 </ul>
-<p>在 <em>结构化文本</em> 中，还有更多快速移动的可能性。Vim 为 C 语言（以及类似语言如 C++ 和 Java）提供了特定的命令：</p>
+<p>在 <em>結構化文本</em> 中，還有更多快速移動的可能性。Vim 為 C 語言（以及類似語言如 C++ 和 Java）提供了特定的命令：</p>
 <ul>
-<li>使用 <code>%</code> 可以从一个开括号跳转到其匹配的闭括号，或者从 <code>#if</code> 跳转到匹配的 <code>#endif</code> 。实际上， <code>%</code> 可以跳转到许多不同的匹配项。它对于检查 <code>()</code> 和 <code>{}</code> 结构是否平衡非常有用。</li>
-<li>使用 <code>[{</code> 可以跳回到当前代码块开头的 <code>{</code> 。</li>
-<li>使用 <code>gd</code> 可以从变量的使用位置跳转到其局部声明。</li>
+<li>使用 <code>%</code> 可以從一個開括號跳轉到其匹配的閉括號，或者從 <code>#if</code> 跳轉到匹配的 <code>#endif</code> 。實際上， <code>%</code> 可以跳轉到許多不同的匹配項。它對於檢查 <code>()</code> 和 <code>{}</code> 結構是否平衡非常有用。</li>
+<li>使用 <code>[{</code> 可以跳回到當前代碼塊開頭的 <code>{</code> 。</li>
+<li>使用 <code>gd</code> 可以從變量的使用位置跳轉到其局部聲明。</li>
 </ul>
-<p>当然，还有很多其他命令。关键在于你需要熟悉这些命令。你可能会反对说，你不可能学会所有这些命令——有数百种不同的移动命令，有些简单，有些非常巧妙——而且需要数周的训练才能掌握它们。其实你不需要 <strong>全部学会</strong> ；相反，你应该意识到自己的编辑方式，并只学习那些 <span class="underline">能让你的编辑更高效的命令</span> 。</p>&hellip;
+<p>當然，還有很多其他命令。關鍵在於你需要熟悉這些命令。你可能會反對說，你不可能學會所有這些命令——有數百種不同的移動命令，有些簡單，有些非常巧妙——而且需要數周的訓練才能掌握它們。其實你不需要 <strong>全部學會</strong> ；相反，你應該意識到自己的編輯方式，並只學習那些 <span class="underline">能讓你的編輯更高效的命令</span> 。</p>&hellip;
 	
 </div>
 					<a class="readmore" href="/posts/seven-habits-of-effective-text-editing/">Read more ⟶</a>
