@@ -13,6 +13,10 @@ copyright = "© Fuloido"
 	katex = true # enable KaTeX support
     favicon = "/favicon.png"
 
+#  Use _Goldmark_ markdown parser
+[markup.goldmark.renderer]
+  unsafe = true
+
 # Social Tags
 
 [[params.social]]

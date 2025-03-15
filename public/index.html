@@ -82,16 +82,110 @@
 				
 				
 				<section class="list-item">
-					<h1 class="title"><a href="/posts/hello-world/">你好，世界</a></h1>
+					<h1 class="title"><a href="/posts/a64-instruction-encoding/">A64指令集編碼</a></h1>
+					<time>Mar 15, 2025</time>
+					<br><div class="description">
+	
+	<p>最近在做 Aarch64 架構的虛擬機，在此分享一下 A64 的指令編解碼。</p>
+<p>儘管 A64/A32 指令集是由若干 <em>FEAT_XXX</em> 組成的，但 Arm 還是將其分為了若干類以便於拓展和編解碼。大概可以分為：</p>
+<ol>
+<li>基本指令集</li>
+<li>浮點數和 SIMD 指令集</li>
+<li>向量指令集</li>
+<li>矩陣指令集</li>
+</ol>
+<p>在編解碼時由指令了 <strong>[25:28]</strong> 位決定其分類，具體的分類見下表：</p>
+<table>
+  <thead>
+      <tr>
+          <th>Instr[28:25]</th>
+          <th>對應指令集分類</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>0b0000 (Instr[31] = 0)</td>
+          <td>保留</td>
+      </tr>
+      <tr>
+          <td>0b0000 (Instr[31] = 1)</td>
+          <td>矩陣指令集 (SME)</td>
+      </tr>
+      <tr>
+          <td>0b0010</td>
+          <td>向量指令集 (SVE)</td>
+      </tr>
+      <tr>
+          <td>0b100x</td>
+          <td>數據通路 (Data Processing)：立即數類</td>
+      </tr>
+      <tr>
+          <td>0b101x</td>
+          <td>分支指令、異常生成 (Exception Generating)、系統指令 (System instruction)</td>
+      </tr>
+      <tr>
+          <td>0bx101</td>
+          <td>數據通路 (Data Processing)：寄存器類</td>
+      </tr>
+      <tr>
+          <td>0bx111</td>
+          <td>數據通路 (Data Processing)：浮點數以及 SIMD 指令集</td>
+      </tr>
+      <tr>
+          <td>0bx1x0</td>
+          <td>內存加載和儲存 (Loads and Store)</td>
+      </tr>
+  </tbody>
+</table>
+<p>下面簡單分享一下基本指令集和浮點、SIMD 指令集的編解碼規則，後續有機會分享一下 SVE 以及 SME 指令集的編解碼。</p>
+<h2 id="數據通路-寄存器類">數據通路 - 寄存器類</h2>
+<p>這一類指令類型主要涵蓋了：</p>&hellip;
+	
+</div>
+					<a class="readmore" href="/posts/a64-instruction-encoding/">Read more ⟶</a>
+				</section>
+				
+				<section class="list-item">
+					<h1 class="title"><a href="/posts/how-to-make-and-use-xface/">如何制作 X-Face 风格头像</a></h1>
+					<time>Feb 17, 2025</time>
+					<br><div class="description">
+	
+	<p>一开始是在 <em>emacs-china</em> 上水论坛时，经常能看到像素极低、纯黑白的头像、却又很带感的头像。后来<a href="https:emacs-china.org/t/topic/3118">发现</a>原来叫 <code>X-face</code> ，大概是邮件／新闻组时代流行的头像。</p>
+<blockquote>
+<p>翻到 <a href="https://blog.csdn.net/lujun9972/article/details/46002803">DarkSun转的一篇老文章</a>，提到了 <a href="https://en.wikipedia.org/wiki/X-Face">X-Face</a> 这个邮件／新闻组时代很流行的东西。就和现在的 Gravatar 差不多。甚至以前的 IRC 也能显示 X-face 头像。</p>
+</blockquote>
+<p><code>X-face</code> 是邮件 header 部分嵌入的一段代码，在读入邮件时转换为 <em>48x48</em> 的 bitmap。可以通过 <a href="https://www.dairiki.org/xface/xface.php">Online X-Face Converter</a> 直接转换。然而，如果你的图片是彩色的、分辨率过高，直接转换的效果很不好。</p>
+<p>这里参考了 <a href="https://emacs-china.org/t/x-face/28144">emacs-china 上的一个教程</a>，分享一下作为 <code>gimp</code> 苦手的制作过程。</p>
+<ol>
+<li>图像-&gt;模式-&gt;灰度：将彩色的图片去色便于后续通过 <strong>阈值</strong> 分割像素，当然最好用本来就是黑白的图片。</li>
+<li>颜色-&gt;阈值：这一步将黑白像素分离，只要有线条即可，后续通过滤镜加粗线条。这里建议可以分图层处理，比如说眼睛部分和头发部分，往往当眼睛部分已经全为黑色像素时头发的线条还未区分。</li>
+<li>图像-&gt;模式-&gt;索引：将图片变为 <em>black and white pattle(1bit)</em></li>
+<li>滤镜-&gt;常规-&gt;腐蚀：将线条加粗，一般需要多次使用这个滤镜。</li>
+<li>图像-&gt;缩放：缩放为 48x48 ，插值方法一般不限。</li>
+</ol>
+<p>据 <a href="https://emacs-china.org/t/x-face/28144/2">LdBeth</a>，x-face 没有确切的解码标准，甚至因为作者技术问题和导致仿造实现时出了偏差，有些实现是相互不兼容的，现在一般用 compface 这个具体实现。这里直接使用 <em>compface</em> 提供的 <code>xbm2xface</code> 脚本即可。或者直接使用 <a href="https://www.dairiki.org/xface/xface.php">Online X-Face Converter</a> encode一下。</p>
+<h2 id="为-wanderlust-设置-x-face-邮件头">为 WanderLust 设置 X-Face 邮件头</h2>
+<p><em>WanderLust</em> 自动读取 <code>~/.xface</code> ，如果需要显示 X-Face 则需要额外的包，参考了 <code>doom emacs</code> ，添加：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elisp" data-lang="elisp"><span style="display:flex;"><span>  <span style="color:#75715e">;; Use x-face only when compface installed</span>
+</span></span><span style="display:flex;"><span>  (when (modulep! +xface)
+</span></span><span style="display:flex;"><span>    (<span style="color:#a6e22e">autoload</span> <span style="color:#e6db74">&#39;x-face-decode-message-header</span> <span style="color:#e6db74">&#34;x-face-e21&#34;</span>)
+</span></span><span style="display:flex;"><span>    (setq wl-highlight-x-face-function <span style="color:#e6db74">&#39;x-face-decode-message-header</span>))
+</span></span></code></pre></div><p>顺便一提， <code>Homebrew</code> 目前不提供 <code>compface</code> 这个包，这里参考 <a href="https://www.linuxfromscratch.org/blfs/view/git/general/compface.html">Linux® From Scratch</a> 手动构建了这个程序。你可能需要：</p>&hellip;
+	
+</div>
+					<a class="readmore" href="/posts/how-to-make-and-use-xface/">Read more ⟶</a>
+				</section>
+				
+				<section class="list-item">
+					<h1 class="title"><a href="/posts/hello-world-again/">耶复活了</a></h1>
 					<time>Feb 15, 2025</time>
 					<br><div class="description">
 	
-	<p>之前用 <code>hexo</code> 构建的博客遗失了，目前先使用 <code>github pages</code> + <code>hugo</code> 构建博客。<br>
-将来大概会用 <code>cloudflare pages</code> + <code>org mode</code> + 自己用 <code>elisp</code> 写的博客引擎重构。</p>
-<p>耶复活了。</p>&hellip;
+	<p>之前用 <code>hexo</code> 构建的博客遗失了，目前先使用 <code>github pages</code> + <code>hugo</code> 构建博客。将来大概会用 <code>cloudflare pages</code> + <code>org mode</code> + 自己用 <code>elisp</code> 写的博客引擎重构。</p>
+<p><del>耶复活了。</del></p>&hellip;
 	
 </div>
-					<a class="readmore" href="/posts/hello-world/">Read more ⟶</a>
+					<a class="readmore" href="/posts/hello-world-again/">Read more ⟶</a>
 				</section>
 				
 				
