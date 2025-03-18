@@ -1,46 +1,149 @@
-<!-- idea from konfou.xyz -->
-<!-- colorscheme: everforest-medium-dark -->
 <!DOCTYPE html>
-<html lang=en>
-<meta charset=utf-8>
-<title>~fuloido</title>
-<meta name=author content="fuloido's blog">
-<link rel=license href=https://creativecommons.org/licenses/by/4.0/>
-<link rel=icon href=favicon.ico>
-<!-- favicon from my classmate -->
-<style>
- *{scrollbar-color:gray #404040}
- *::selection{background:#434C5E}
- *::-webkit-scrollbar{width:auto}
- *::-webkit-scrollbar-track{background:#404040}
- *::-webkit-scrollbar-thumb{background:gray}
- body{background-color:#2f383e;color:#d3c6aa;font-family:ui-monospace,Cascadia Code,Monaco,Consolas,monospace;font-size:16px;margin:0}
- a{color:#83c092;text-decoration:none}
- a:visited{color:#a7c080}
- a:hover{color:#d699b6}
- .home{width:100%;min-height:calc(100vh - 50px);text-align:center}
- .home pre{max-width:80ch;padding-top:2em;margin-left:auto;margin-right:auto;line-height:1.5em;overflow:auto;display:inline-block;text-align:left}
- footer{height:50px;text-align:center;background:#323d43}
- pre{font-family:inherit;margin:1rem}
- #quote{color:#7fbbb3;font-style:italic;text-align:center}
- #comment{color:#7a8478;font-style:italic}
- #normal{color:#d3c6aa}
-</style>
-<body>
-  <!--
-  <script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>~fuloido</title>
+  <meta name="author" content="fuloido's blog">
+  <link rel="license" href="https://creativecommons.org/licenses/by/4.0/">
   <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css">
-  -->
+  <style>
+    :root {
+      --base00: #F5F5F5;
+      --base01: #90A4AE;
+      --base02: #78909C;
+      --base03: #546E7A;
+      --base00-1: #FBFBFB;
+      --base00-2: #FDFDFD;
+      --base00+1: #F0F0F0;
+      --base00+2: #EBEBEB;
+      --base00+3: #E6E6E6;
+      --green: #66BB6A;
+      --teal: #26A69A;
+      --teal-1: #00897B;
+      --pink-1: #EC407A;
+      --indigo: #5C6BC0;
+      --cyan: #0097A7;
+    }
+
+    * {
+      scrollbar-color: var(--base01) var(--base00+3);  /* #90A4AE - #E6E6E6 */
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    *::selection {
+      background: var(--indigo);  /* #5C6BC0 */
+    }
+
+    *::-webkit-scrollbar {
+      width: auto;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: var(--base00+3);  /* #E6E6E6 */
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background: var(--base01);  /* #90A4AE */
+    }
+
+    body {
+      background-color: var(--base00);  /* #F5F5F5 */
+      color: var(--base03);  /* #546E7A */
+      font-family: ui-monospace, Cascadia Code, Monaco, Consolas, monospace;
+      font-size: 16px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    a {
+      color: var(--green);  /* #66BB6A */
+      text-decoration: none;
+    }
+
+    a:visited {
+      color: var(--teal-1);  /* #00897B */
+    }
+
+    a:hover {
+      color: var(--pink-1);  /* #EC407A */
+    }
+
+    .home {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: left;
+      background-image: linear-gradient(
+        to bottom right,
+        var(--base00-1),  /* #FBFBFB */
+        var(--base00-2)   /* #FDFDFD */
+      );
+      padding: 1rem;
+    }
+
+    .home pre {
+      max-width: 80ch;
+      padding: 2em;
+      line-height: 1.5em;
+      background: var(--base00-1);  /* #FBFBFB */
+      border: 1px solid var(--base00+1);  /* #F0F0F0 */
+      box-shadow: 2px 2px 4px var(--base00+2);  /* #EBEBEB */
+      color: var(--base02);  /* #78909C */
+      overflow: auto;
+    }
+
+    footer {
+      text-align: center;
+      background: var(--base00+1);  /* #F0F0F0 */
+      border-top: 1px solid var(--base00+2);  /* #EBEBEB */
+      padding: 1rem;
+    }
+
+    footer img {
+      vertical-align: middle;
+    }
+
+    pre {
+      font-family: inherit;
+    }
+
+    #quote {
+      color: var(--cyan);  /* #0097A7 */
+      border-left: 3px solid var(--teal);  /* #26A69A */
+      font-style: italic;
+      text-align: center;
+    }
+
+    #comment {
+      color: var(--base01);  /* #90A4AE */
+      font-style: italic;
+    }
+
+    #normal {
+      color: var(--base03);  /* #546E7A */
+    }
+  </style>
+</head>
+<body>
+  <!--<script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script>-->
   <div class="home">
     <pre>
 (<font color=#e67e80>let</font> ((name <strong>"fuloido"</strong>)
       (mai1 "<a>me@fuloido.moe</a>")
       (blog "<a href=./notes>notes</a>")
-      (about "<a href=about.html>about</a>")</pre>
-    <br>
+      (about "<a href=about.html>about</a>")
+    </pre>
   </div>
   <footer>
     © 2024-2025 fuloido<br>
+    <p>
+      <img src="./web_badge/created5.gif" alt="powered-by-emacs">
+    </p>
     $v$
   </footer>
 </body>
+</html>

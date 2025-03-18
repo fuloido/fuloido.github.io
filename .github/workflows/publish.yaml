@@ -1,5 +1,5 @@
 # Building and deploying a Org-mode site with ox-publish to GitHub Pages
-name: Deploy Hugo site to Pages
+name: Deploy Org-mode site to Pages
 
 on:
   # Runs on pushes targeting the default branch

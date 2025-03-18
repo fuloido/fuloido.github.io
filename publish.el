@@ -19,7 +19,12 @@
 ;;
 ;;; Code:
 
+(add-to-list 'load-path "elisp")
+(require 'org)
 (require 'ox-publish)
+(require 'htmlize)
+
+(setq org-html-htmlize-output-type 'css)
 
 (setq org-publish-project-alist
         `(("pages"
@@ -38,6 +43,8 @@
 
           ("fuloido.moe" :components ("pages" "static"))))
 
-(org-publish-all t)
+(org-publish "fuloido.moe" t)
+
+(print "Publish Done")
 
 ;;; publish.el ends here
