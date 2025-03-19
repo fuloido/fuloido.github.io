@@ -1,7 +1,8 @@
 #+TITLE: 使用 Emacs Org-Mode 构建博客
-#+OPTIONS: toc:nil num:nil pri:t
+#+OPTIONS: toc:t num:nil pri:t
 #+OPTIONS: html-style:nil
 #+OPTIONS: html5-fancy:t
+#+LANGUAGE: zh
 #+DATE: <2025-03-18 Tue>
 #+EMAIL: email:me@fuloido.moe
 #+HTML_DOCTYPE: html5
@@ -58,7 +59,7 @@ Your content goes here.
 * 使用 ox-publish 构建博客
 个人认为 [[https://github.com/emacs-mirror/emacs/blob/master/lisp/org/ox-publish.el][ox-publish.el]] 实际上相当于 Makefile，所谓 /publish/ 就是根据源文件生成一些文件并移动到构建目标。这里参考 [[https://taingram.org][Thomas Ingram]]  [fn:2]的博客。我的博客使用以下 =project structure= ：
 
-#+begin_example
+#+begin_src
 ~/fuloido.moe/
 ├── src/                    # blog source files to be exported
 │   ├── notes/
@@ -76,11 +77,11 @@ Your content goes here.
 ├── public/                 # target export directory
 ├── publish.el              # site sepecifc publishing config
 └── Makefile                # for building the site outside of Emacs
-#+end_example
+#+end_src
 
 只设定 ~org-publish-project-alist~ 就可以将项目结构解释给 =ox-publish= 以导出博客：
 
-#+begin_src elisp
+#+begin_src emacs-lisp
 (setq org-publish-project-alist
         `(("pages"
            :base-directory "./src/"

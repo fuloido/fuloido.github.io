@@ -1,0 +1,357 @@
+/* Basic style across the whole site. */
+
+@import url("./typeface.css");
+
+* {
+    box-sizing: border-box;
+    /* Otherwise Safari uses a weird synthesized bold for variable font.  */
+    font-synthesis: none !important;
+}
+
+html {
+    --background: #fefcfc;
+    --foreground: #000000;
+    --header-size: 18px;
+    --body-size: 20px;
+    --toc-size: 17px;
+    --title-size: 50px;
+    --subtitle-size: 24px;
+    --h2-size: 22px;
+    --mono-size: 15px;
+    --footer-size: 16px;
+    --small-size: 17px;
+    --small-code-size: 15px;
+    --star-size: 20px;
+    --sup-size: 15px;
+}
+
+/* Protrait */
+@media screen and (max-width: 1023px) {
+    html {
+        --header-size: 18px;
+        --body-sizeL: 14pt;
+        --toc-size: 18px;
+        --title-size: 50px;
+        --subtitle-size: 20px;
+        --h2-size: 20px;
+        --mono-size: 12px;
+        --footer-size: 14px;
+        --small-size: 14px;
+        --small-code-size: 12px;
+        --star-size: 16px;
+        --sup-isze: 12px;
+    }
+}
+
+body {
+    font-family: Boritina, Charter, "方正FW筑紫明朝R改", ui-serif, serif;
+    font-size: var(--body-size);
+    line-height: 1.5;
+    background-color: var(--background);
+    color: var(--foreground);
+    margin-bottom: 3em;
+}
+
+body:lang(zh) {
+    line-height: 1.55;
+    font-family: "方正FW筑紫明朝R改", ui-serif, serif;;
+}
+
+backquote {
+    font-style: italic;
+}
+
+backquote:lang(zh) {
+    font-style: normal;
+    font-family: "方正聚珍新仿", ui-serif, serif;
+    font-family: ui-serif, serif;
+}
+
+html:lang(zh)p {
+    text-align: justify;
+}
+
+/*** Macro markups */
+
+.cjk-emphasize {
+    text-emphasize-position: under right;
+    text-emphasis-style: dot;
+}
+
+.zh-alt { font-family: "方正聚珍新仿", ui-serif, serif; }
+
+.smallcaps { font-variant: small-caps; }
+
+.lining-num { font-variant-numeric: lining-nums; }
+
+.oldstyle-num {
+    font-variant-numeric: oldstyle-nums;
+    /* For Martina Plantijn. */
+    font-feature-settings: 'onum';
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+}
+
+.nobreak {
+    white-space: nowrap;
+}
+
+/*** Colors */
+
+::selection {
+    color: var(--background);
+    background-color: var(--foreground);
+}
+
+:link, :visited {
+    color: inherit;
+}
+
+a { text-decoration: none; }
+
+a:hover, details:hover {
+    background: #fbeaea;
+    transition-property: background;
+    transition-duration: 0.2s;
+
+    border-radius: 8px
+}
+
+a:after {
+    margin-left: 0.1rem;
+    content: "\FEFF⬏";
+    color: #933;
+    font-size: 15px, monospace;
+
+    vertical-align: top;
+    font-weight: bold;
+}
+.obviously-a-link a:after { content: none; }
+a.obviously-a-link:after { content: none; }
+
+hr { border-color: var(--foreground); }
+
+/*** Body text */
+
+.title {
+    font-weight: normal;
+    font-size: var(--title-size);
+    /* A tiny bit space more below than above */
+    margin-top: 2rem;
+    margin-bottom: 2.5rem;
+}
+
+.subtitle {
+    margin: 0;
+    margin-top: 1rem;
+    font-size: var(--subtitle-size);
+    font-style: italic;
+}
+
+h2, h3 {
+    margin-top: calc((5rem - var(--h2-size)) / 2);
+    margin-bottom: calc((5rem - var(--h2-size)) / 2);
+    font-size: var(--h2-size);
+}
+
+h2 { font-weight: bold; }
+h3 {
+    font-style: italic;
+    font-weight: normal;
+}
+
+/* h1 exported as title in org-mode, therefore `before' started from h2 */
+h2::before { color: var(--maincolor); content: '*  '; }
+h3::before { color: var(--maincolor); content: '**  '; }
+h4::before { color: var(--maincolor); content: '***  '; }
+h5::before { color: var(--maincolor); content: '****  '; }
+h6::before { color: var(--maincolor); content: '*****  '; }
+
+p {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+em {
+    font-family: Charter;
+    font-size: 1.1em;
+}
+
+.underline {
+  /* text-decoration: underline; */
+  border-bottom: 2px solid;
+  color: inherit;
+  text-decoration: none;
+}
+
+code, pre.code-block, .mono, .source {
+    font-family: ui-mono, monospace;
+    font-size: var(--mono-size);
+}
+
+figcaption {
+    margin-top: 1em;
+    font-size: 15px;
+    text-align: center;
+}
+
+figure {
+    /* Override browser default margins. */
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+}
+
+figure img {
+    margin: auto;
+    display: block;
+}
+
+img {
+    width: 100%;
+    margin: auto;
+}
+
+img.half { width: max(50%, 300px); }
+img.twothird { width: max(66%, 400px); }
+
+details {
+    cursor: pointer;
+    padding-left: 4px;
+}
+
+/** Headers */
+
+#header {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    justify-content: space-between;
+    font-family: Helvetica;
+    font-size: var(--header-size);
+}
+
+#header nav ol {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#header nav span {
+    display: inline-block;
+    margin-left: 6px;
+    margin-right: 6px;
+    font-size: 12px;
+    vertical-align: center;
+}
+
+/*** Lists */
+
+/* Safari doesn’t support either @counter-style or ::marker, lol. */
+
+@counter-style nodot {
+    system: numeric;
+    symbols: "0" "1" "2" "3" "4" "5" "6" "7" "8" "9";
+    speak-as: numbers;
+    suffix: "  ";
+}
+
+ol {
+    list-style: nodot;
+}
+
+/* li::marker { */
+/*     font-variant-numeric: oldstyle-nums; */
+/*     /\* For Martina Plantijn. *\/ */
+/*     font-feature-settings: 'onum'; */
+/* } */
+
+dt, dd {
+    margin-bottom: 0.5rem;
+}
+
+/** Postamble */
+
+#postamble {
+    margin-top: 3rem;
+    font-size: var(--footer-size);
+}
+
+#postamble p {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+/*** Tables */
+
+table {
+    border-collapse: collapse;
+    /* border-style: solid none; */
+    /* border-width: 1px 0; */
+    font-variant-numeric: lining-nums;
+}
+
+td, th {
+    text-align: left;
+    padding: 0 1rem;
+}
+
+/*** Footnote */
+
+.footref-anchor { word-wrap: break-word; }
+sup > a.footref {
+    font-size: var(--sup-size);
+    font-family: Charter;
+    font-weight: 900;
+    margin-left: 0.1rem;
+    text-decoration: none;
+    color: #933;
+    content: none;
+    font-variant-numeric: lining-nums;
+}
+sup > a.footref::after {
+    content: none;
+}
+
+sup > a.footnum {
+    margin-right: 1rem;
+    color: #933;
+    font-family: Charter;
+    font-weight: 900;
+    font-size: var(--small-size);
+    font-variant-numeric: lining-nums;
+}
+sup > a.footnum::after {
+    content: none;
+}
+
+.footdef {
+    display: flex;
+    font-size: var(--small-size);
+    margin-bottom: 1em;
+    /* This way links are also set to gray */
+    --foreground: gray;
+    color: var(--foreground);
+}
+
+
+.footdef p { margin-top: 0; }
+
+
+.footdef code { font-size: var(--small-code-size); }
+
+
+/*** Etc */
+
+/* Prevent super and subscript from changing line height */
+sup, sub {
+    vertical-align: baseline;
+    position: relative;
+}
+sup {
+    margin-left: 0.2rem;
+    margin-right: 0.2rem;
+    top: -0.4rem;
+    font-weight: bold;
+}
+sub { top: 0.4rem; }

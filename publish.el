@@ -31,12 +31,13 @@
            :base-directory "./src/"
            :base-extension "org"
            :recursive t
+           :html-postamble "<p class=\"author\">Author: %a (%e)</p>\n<p class=\"date\">Date: %d</p>\n"
            :publishing-directory "./public/"
            :publishing-function org-html-publish-to-html)
 
           ("static"
            :base-directory "./src/"
-           :base-extension "css\\|txt\\|jpg\\|gif\\|png\\|html"
+           :base-extension "css\\|txt\\|jpg\\|gif\\|png\\|html\\|tff\\|woff2"
            :recursive t
            :publishing-directory  "./public/"
            :publishing-function org-publish-attachment)
